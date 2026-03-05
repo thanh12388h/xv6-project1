@@ -1,49 +1,55 @@
 #include "kernel/types.h"
-#include "kernel/param.h"
 #include "user/user.h"
+#include "kernel/param.h"
 
-int main(int argc, char *argv[]) {
-  char buf[512];
-  char *params[MAXARG];
-  char c;
-  int n, i = 0; // Khởi tạo i = 0
+int main(int argc, char* argv[]){
+	char buf[512]; // command 
+	char* params[MAXARG]; // list of pointer 
+	char c;	
+	int n, i = 0;
 
-  if(argc < 2){
-    printf("Usage: xargs command [args...]\n");
-    exit(1);
-  }
-
-  // Copy các đối số từ lệnh gốc (ví dụ: echo bye)
-  for(int j = 1; j < argc; j++) {
-    params[j-1] = argv[j];
-  }
-
-  while((n = read(0, &c, 1)) > 0) { // Đọc từng ký tự 
-    if(c == '\n') {
-      buf[i] = 0; // Kết thúc chuỗi dòng hiện tại
-      if(fork() == 0) { // Tiến trình con [cite: 36]
-        params[argc-1] = buf;
-        params[argc] = 0;
-        exec(params[0], params); // Thực thi lệnh [cite: 36]
-        exit(0);
-      }
-      wait(0); // Cha đợi con [cite: 37]
-      i = 0; // Reset để đọc dòng tiếp theo
-    } else {
-      if (i < sizeof(buf) - 1) {
-        buf[i++] = c;
-      }
-    }
-  }
-if(i > 0){ // Nếu vẫn còn dữ liệu trong buf mà chưa gặp \n
-    buf[i] = 0;
-    if(fork() == 0){
-      params[argc-1] = buf;
-      params[argc] = 0;
-      exec(params[0], params);
-      exit(0);
-    }
-    wait(0);
-  }
-  exit(0);
+	if(argc < 2){
+		printf("Usage: xargs command [args...]\n");
+		exit(1);
+	}
+	// copy arguments from argv[] into params[]/ 
+	for(int j = 1; j < argc; j ++){
+		params[j - 1] = argv[j];
+	}
+	// handle data flow 
+	// read each character 
+	while((n = read(0, &c, 1)) > 0){
+		// read until encounter a newline (\n)
+		if(c == '\n'){
+			buf[i] = 0; // end the current string
+			// execute command in the child process 
+			if(fork() == 0){ // child process
+				params[argc - 1] = buf;
+				params[argc] = 0;
+				exec(params[0], params);
+				exit(0);
+			}
+			wait(0); // waiting child process 
+			i = 0; // reset to read a next line. 
+		}
+		else{
+			if(i < sizeof(buf) - 1){
+				buf[i++] = c;
+			}
+		}
+	}
+	
+	// if there are still data in buf but have encoutered \n
+	if(i > 0){
+		buf[i] = 0; // close the buff 
+		if(fork() == 0){
+			params[argc - 1] = buf;
+			params[argc] = 0;
+			exec(params[0], params);
+			exit(0);
+		}
+		wait(0);
+	}
+	exit(0);
 }
+	
