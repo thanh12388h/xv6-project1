@@ -2,48 +2,83 @@
 #include "kernel/param.h"
 #include "user/user.h"
 
-int main(int argc, char *argv[]) {
-  char buf[512];
-  char *params[MAXARG];
-  char c;
-  int n, i = 0; // Khởi tạo i = 0
+#define MAXLINE 512
 
-  if(argc < 2){
-    printf("Usage: xargs command [args...]\n");
-    exit(1);
-  }
+int main(int argc, char* argv[]){
+	char* cmd[MAXARG];
+	char buf[MAXLINE];
+	int n = 1;
+	int cmd_argc = 0;
 
-  // Copy các đối số từ lệnh gốc (ví dụ: echo bye)
-  for(int j = 1; j < argc; j++) {
-    params[j-1] = argv[j];
-  }
+	int arg_start = 1;
 
-  while((n = read(0, &c, 1)) > 0) { // Đọc từng ký tự 
-    if(c == '\n') {
-      buf[i] = 0; // Kết thúc chuỗi dòng hiện tại
-      if(fork() == 0) { // Tiến trình con [cite: 36]
-        params[argc-1] = buf;
-        params[argc] = 0;
-        exec(params[0], params); // Thực thi lệnh [cite: 36]
-        exit(0);
-      }
-      wait(0); // Cha đợi con [cite: 37]
-      i = 0; // Reset để đọc dòng tiếp theo
-    } else {
-      if (i < sizeof(buf) - 1) {
-        buf[i++] = c;
-      }
-    }
-  }
-if(i > 0){ // Nếu vẫn còn dữ liệu trong buf mà chưa gặp \n
-    buf[i] = 0;
-    if(fork() == 0){
-      params[argc-1] = buf;
-      params[argc] = 0;
-      exec(params[0], params);
-      exit(0);
-    }
-    wait(0);
-  }
-  exit(0);
+	// xu ly option -n
+	if(argc > 2 && strcmp(argv[1], "-n") == 0){
+		n = atoi(argv[2]);
+		arg_start = 3;
+	}
+
+	
+
+	for(int i = arg_start; i < argc; i ++){
+		cmd[cmd_argc++] = argv[i];
+	}
+
+	char c;
+	int idx = 0; 
+	int collected = 0;
+
+
+	
+	// doc 1 byte
+	while(read(0, &c, 1) == 1){
+		if(c == ' ' || c == "\n"){
+			if(idx == 0) continue;
+		
+		buf[idx] = '\0';
+		
+		cmd[cmd_argc + collected] = buf;
+
+		idx = 0;
+
+		if(collected == n || c = '\n'){
+			cmd[cmd_argc + collected] = 0;
+
+
+			int pid = fork();
+			if(pid == 0){
+				exec(cmd[0], cmd);
+				fprintf(2, "exec failed \n");
+			} else {
+				wait(0);
+			}
+
+			collected = 0;
+
+		}
+
+		}
+	else {
+		buf[idx++] = c;
+	}
+	}
+	// xu ly input cuoi neu ko co newline
+	if(idx > 0){
+		buf[idx] = '\0';
+
+		cmd[cmd_argc + collected] = buf;
+		collected ++;
+
+		cmd[cmd_argc + collected] = 0;
+
+		int pid = fork();
+		if(pid == 0){
+			exec(cmd[0], cmd);
+			exit(1);
+		}
+		else {
+			wait(0);
+		}
+	}
+	exit(0);
 }
