@@ -30,18 +30,21 @@ int main(int argc, char* argv[]){
 
 
 	
-	// doc 1 byte
+	
 	while(read(0, &c, 1) == 1){
-		if(c == ' ' || c == "\n"){
+		if(c == '\n'){
 			if(idx == 0) continue;
 		
 		buf[idx] = '\0';
 		
-		cmd[cmd_argc + collected] = buf;
+		char *arg = malloc(strlen(buf) + 1);
+		strcpy(arg,buf);
+		cmd[cmd_argc + collected] = arg;
+		collected++;
 
 		idx = 0;
 
-		if(collected == n || c = '\n'){
+		if(collected == n || c == '\n'){
 			cmd[cmd_argc + collected] = 0;
 
 
@@ -65,8 +68,9 @@ int main(int argc, char* argv[]){
 	// xu ly input cuoi neu ko co newline
 	if(idx > 0){
 		buf[idx] = '\0';
-
-		cmd[cmd_argc + collected] = buf;
+		char *arg = malloc(strlen(buf) + 1);
+		strcpy(arg,buf);
+		cmd[cmd_argc + collected] = arg;
 		collected ++;
 
 		cmd[cmd_argc + collected] = 0;
