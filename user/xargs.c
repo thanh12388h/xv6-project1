@@ -18,7 +18,6 @@ int main(int argc, char* argv[]){
 		arg_start = 3;
 	}
 
-	
 
 	for(int i = arg_start; i < argc; i ++){
 		cmd[cmd_argc++] = argv[i];
