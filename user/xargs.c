@@ -1,47 +1,50 @@
-
-
+#include "kernel/types.h"
+#include "user/user.h"
 
 int main(int argc, char* argv[]){
-	
 	char* new_argv[100];
+	int new_argc = 0;
 	
 	// copy to new command 
 	for(int i = 1; i < argc; i ++){
-		new_argv[i - 1] = argv[i];	
-
+		new_argv[new_argc++] = argv[i];	
 	}
 
 	
 	char c;
 	int id = 0;
-	char* buff; // chua 1 word
+	char buff[100]; // chua 1 word
 	int c_word = 0;
-
+	
+	// gia su chac chan co du lieu tu stdin
+	// logic doc tung dong du lieu 
 	while(read(0, &c, 1) == 1){
-		if(c == ' ' || c == '\n'){
+		if(c == '\n'){
 			buff[id] = '\0'; // ket thuc chuoi
-			new_argv[argc + c_word] = buff;
+			new_argv[new_argc + c_word] = buff;
 			id = 0; // reset 
-			 
+			c_word++; // them 1 argument moi
 			
-
+			// logic thuc thi command dau tien (echo + new_cmd)
+				new_argv[new_argc + c_word] = 0; // tu cuoi luon la NULL
+				int p_id = fork();
+				if(p_id == 0){ // child process
+					exec(new_argv[0], new_argv);// echo + new cmd
+					printf("exec fail \n");
+				}
+				else{ // parent process 
+					wait(0);
+				}
+			
 		}
 		else{
-				
+			// day ky tu vao buff (word)
+			buff[id++] = c;
 		}
-	)
-
-	
+	}
 
 
-
-
-
-
-
-
-
-
+	exit(0);
 }
 
 
