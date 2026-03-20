@@ -196,6 +196,7 @@ UPROGS=\
 	$U/_zombie\
 	$U/_xargs\
 	$U/_tree\
+	$U/_procinfotest\
 
 
 ifeq ($(LAB),syscall)

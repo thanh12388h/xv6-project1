@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
 	
 	// doc 1 byte
 	while(read(0, &c, 1) == 1){
-		if(c == ' ' || c == "\n"){
+		if(c == ' ' || c == '\n'){
 			if(idx == 0) continue;
 		
 		buf[idx] = '\0';
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 
 		idx = 0;
 
-		if(collected == n || c = '\n'){
+		if(collected == n || c == '\n'){
 			cmd[cmd_argc + collected] = 0;
 
 
