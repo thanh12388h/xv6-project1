@@ -5,19 +5,20 @@
 #define MAXLINE 512
 
 int main(int argc, char* argv[]){
+<<<<<<< HEAD
 	char* new_argv[MAXARG];
 	int new_argc = 0;
 	
 	// copy to new command 
 	for(int i = 1; i < argc; i ++){
 		new_argv[new_argc++] = argv[i];	
-	}
 
 	char c;
 	int id = 0;
 	char buff[MAXLINE]; // chua 1 word
 	int c_word = 0;
 	
+<<<<<<< HEAD
 	// gia su chac chan co du lieu tu stdin
 	// logic doc tung dong du lieu 
 	while(read(0, &c, 1) == 1){
@@ -63,6 +64,7 @@ int main(int argc, char* argv[]){
 			buff[id++] = c;
 		}
 	}
+<<<<<<< HEAD
 	
 	// handle EOF: neu dong cuoi cua stdin khong co newline \n
 	if(id > 0){
@@ -80,6 +82,7 @@ int main(int argc, char* argv[]){
 		if(p_id == 0){ 
 			exec(new_argv[0], new_argv);
 			printf("exec fail \n");
+=======
 			exit(1);
 		}
 		else{ 
