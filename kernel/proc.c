@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "procinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -695,4 +696,58 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int get_procinfo(int pid, uint64 info_addr)
+{
+  struct proc *p;
+  struct proc *my_p = myproc(); //get the system call that is calling
+  struct procinfo tmp_info; //Temporary variable to hold the info
+  int found = 0;
+
+  //The process table in xv6 is an array named 'proc'. We iterate through this array
+  for(p = proc; p < &proc[NPROC]; p++)
+  {
+    acquire(&p->lock); //Lock the process to safely read the data
+
+    //if the process is in use and its PID matches the request
+    if(p->state != UNUSED && p->pid == pid)
+    {
+      //1.Copy data to the temporaty variable tmp_info
+      tmp_info.pid = p->pid;
+      tmp_info.state = p->state;
+      tmp_info.sz = p->sz;
+      safestrcpy(tmp_info.name, p->name, sizeof(tmp_info.name));
+
+      //Handle separately for the parent process(ppid)
+      if(p->parent)
+      {
+        tmp_info.ppid = p->parent->pid;
+      }
+      else
+      {
+        tmp_info.ppid = 0; //if there is no parent
+      }
+
+      found = 1;
+      release(&p->lock);//if there is no match, unlock for another process to run
+      break; //Exit the loop immediately after dining to save system resources
+    }
+
+    release(&p->lock); //if there is no match, unlock for another process to run
+  }
+
+  //if iterates through the entire array and this PID is not found
+  if(!found)
+  {
+    return -1;
+  }
+
+  //2. copyout: a crucial kernel function for securely copying data
+  //from kernel space(tmp_info) to User memory(info_addr)
+  if(copyout(my_p->pagetable, info_addr, (char *)&tmp_info, sizeof(tmp_info)) < 0)
+  {
+    return -1; //Memory error
+  }
+  return 0; //Sucess
 }

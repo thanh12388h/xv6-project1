@@ -6,7 +6,7 @@
 void tree(char* path, int depth){
 	// 0. Declaration 
 	int fd; // file dicription 
-	struct dirent de; // name of directory 
+	struct dirent de; // name of directory, identify number
 	struct stat st; // type of file  
 	char buff[512], *p;
 
@@ -24,9 +24,9 @@ void tree(char* path, int depth){
 	}
 
 	// 3. reading current directory content 
-	// using read() to read all subfile in the current directory. 
+	// using read() to read all subfile (name, inum) in the current directory. 
 	while(read(fd, &de, sizeof(de)) == sizeof(de)){
-		// if current file is empty or deleted 
+		// if the current file is empty or deleted 
 		if(de.inum == 0) continue;
 		// skip . and .. in the directory 
 		if(strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0) continue;
