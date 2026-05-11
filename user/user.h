@@ -24,6 +24,16 @@ int sleep(int);
 int uptime(void);
 int trace(int); 
 
+
+struct procinfo {
+  int    pid;
+  int    ppid;
+  int    state;
+  uint64 sz;
+  char   name[16];
+};
+int procinfo(int, struct procinfo*);
+
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);
@@ -42,3 +52,5 @@ void *memcpy(void *, const void *, uint);
 // umalloc.c
 void* malloc(uint);
 void free(void*);
+
+
