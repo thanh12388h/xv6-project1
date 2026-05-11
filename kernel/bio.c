@@ -10,10 +10,10 @@
 // * After changing buffer data, call bwrite to write it to disk.
 // * When done with the buffer, call brelse.
 // * Do not use the buffer after calling brelse.
-// * Only one process at a time can use a buffer,
+// * Only one process at a tim e can use a buffer,
 //     so do not keep them longer than necessary.
-
-
+ 
+ 
 #include "types.h"
 #include "param.h"
 #include "spinlock.h"
